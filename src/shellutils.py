@@ -245,7 +245,7 @@ def pwd():
     return os.getcwd()
     
 def ls(path = pwd()): 
-    '''This function returns a list of files and directories under the path passed as parameter
+    '''This function returns a list of files and directories under the path passed as parameter (without full path)
        NOTE: Do not include . and .. but it shows all hidden files
     '''
     return os.listdir(path)
@@ -289,7 +289,23 @@ def getSystemVariable(name):
     '''This function returns the system variable or None if not found
     '''
     if os.getenv(name) is None:
-        logging.error('Computer name not fetched')
+        logging.error('Envvar not fetched')
 
     return os.getenv(name)
+
+
+def basename(name):
+    '''This function returns the basename for a path
+    '''
+    if os.path.basename(name) is None:
+        logging.error('Basename failed')
+
+    return os.path.basename(name)
+
+def isDriveConnected(name):
+    '''This function returns if a certain drive is connected to the system
+    '''
+    #TODO
+
+    return False
 
