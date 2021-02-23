@@ -7,7 +7,7 @@ setup(
     description='Python utilities library',
     author='<a href="mailto:debuti@gmail.com">Borja Garcia</a>',
     license='GPLv3',
-    install_requires=[],
+    install_requires=['pexpect'],
     setup_requires=[],
     tests_require=[],
     test_suite='tests',
