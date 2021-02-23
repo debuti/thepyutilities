@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 ###############################################################################################
 #  Author:
-_author = '<a href="mailto:debuti@gmail.com">Borja Garcia</a>'
+__author__ = '<a href="mailto:debuti@gmail.com">Borja Garcia</a>'
 # Program:
-_name = 'filesystemutils'
+__name__ = 'filesystemutils'
 # Descrip:
-_description = '''Library for file system utilities.'''
+__description__ = '''Library for file system utilities.'''
 # Version:
-_version = '0.0.1'
-#    Date: 
-_date = '2012-04-28'
+__version__ = '0.0.1'
+#    Date:
+__date__ = '2012-04-28'
 # License: This script doesn't require any license since it's not intended to be redistributed.
 #          In such case, unless stated otherwise, the purpose of the author is to follow GPLv3.
 # History:
@@ -35,8 +35,8 @@ def removeLine(filename, lineno):
     # read the line we want to discard
     readedLine = fro.readline()
 
-    # now move the rest of the lines in the file 
-    # one line back 
+    # now move the rest of the lines in the file
+    # one line back
     chars = fro.readline()
     while chars:
         frw.writelines(chars)
@@ -45,5 +45,5 @@ def removeLine(filename, lineno):
     fro.close()
     frw.truncate()
     frw.close()
-    
+
     return readedLine

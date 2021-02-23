@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 ###############################################################################################
 #  Author:
-_author = '<a href="mailto:debuti@gmail.com">Borja Garcia</a>'
+__author__ = '<a href="mailto:debuti@gmail.com">Borja Garcia</a>'
 # Program:
-_name = 'generalutils'
+__name__ = 'generalutils'
 # Descrip:
-_description = '''Library for uncataloged utilities.'''
+__description__ = '''Library for uncataloged utilities.'''
 # Version:
-_version = '0.0.2'
-#    Date: 
-_date = '2010-11-05'
+__version__ = '0.0.2'
+#    Date:
+__date__ = '2010-11-05'
 # License: This script doesn't require any license since it's not intended to be redistributed.
 #          In such case, unless stated otherwise, the purpose of the author is to follow GPLv3.
 # History:
@@ -19,16 +19,9 @@ _date = '2010-11-05'
 
 import os
 import time
-import shellutils
+from . import shellutils
 import socket
 import platform
-
-import smtplib
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEBase import MIMEBase
-from email.MIMEText import MIMEText
-from email import Encoders
-
 
 def osName():
     '''This function returns the os name
@@ -56,7 +49,7 @@ def systemName():
     '''This function returns the system name
     '''
     return socket.gethostname()
-    
+
 
 def now():
     '''This function returns the current time
@@ -65,13 +58,13 @@ def now():
 
 
 def isInCron(line):
-    '''This method checks if crontab contains one line 
+    '''This method checks if crontab contains one line
     '''
     code, output, error = shellutils.run(["crontab", "-l"])
-     
+
     if len(error) != 0 or shellutils.grep(line, output) == None:
         return False
-        
+
     else:
         return True
 
@@ -80,7 +73,7 @@ def setCron(line):
     '''This method add a line to crontab
     '''
     TEMP_FILE="/tmp/crontab.edit.tmp"
-    
+
     code, output, error = shellutils.run(["crontab", "-l"])
     if len(error) == 0:
         file_out = open(TEMP_FILE, 'w')
@@ -94,35 +87,42 @@ def setCron(line):
     else:
         return None
 
+try:
+    import smtplib
+    from email.MIMEMultipart import MIMEMultipart
+    from email.MIMEBase import MIMEBase
+    from email.MIMEText import MIMEText
+    from email import Encoders
 
-def mail(gmailUser, gmailPwd, to, subject, text, attach=None):
-    '''This procedure sends an email to a list of recipients
-    '''
-    msg = MIMEMultipart()
+    def mail(gmailUser, gmailPwd, to, subject, text, attach=None):
+        '''This procedure sends an email to a list of recipients
+        '''
+        msg = MIMEMultipart()
 
-    msg['From'] = gmailUser
-    msg['To'] = to
-    msg['Subject'] = subject
+        msg['From'] = gmailUser
+        msg['To'] = to
+        msg['Subject'] = subject
 
-    msg.attach(MIMEText(text))
+        msg.attach(MIMEText(text))
 
-    if attach != None:
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(open(attach, 'rb').read())
-        Encoders.encode_base64(part)
-        part.add_header('Content-Disposition',
-           'attachment; filename="%s"' % os.path.basename(attach))
-        msg.attach(part)
+        if attach != None:
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(open(attach, 'rb').read())
+            Encoders.encode_base64(part)
+            part.add_header('Content-Disposition',
+               'attachment; filename="%s"' % os.path.basename(attach))
+            msg.attach(part)
 
-    mailServer = smtplib.SMTP("smtp.gmail.com", 587)
-    mailServer.ehlo()
-    mailServer.starttls()
-    mailServer.ehlo()
-    mailServer.login(gmailUser, gmailPwd)
-    mailServer.sendmail(to, to, msg.as_string())
-    # Should be mailServer.quit(), but that crashes...
-    mailServer.close()
-
+        mailServer = smtplib.SMTP("smtp.gmail.com", 587)
+        mailServer.ehlo()
+        mailServer.starttls()
+        mailServer.ehlo()
+        mailServer.login(gmailUser, gmailPwd)
+        mailServer.sendmail(to, to, msg.as_string())
+        # Should be mailServer.quit(), but that crashes...
+        mailServer.close()
+except:
+    pass
 
 def notifyPushover(appId, userId, message, title="Python app"):
     '''This function is for sending push notifications
@@ -169,4 +169,3 @@ def notifyPushbullet(userId, message, title="Python app"):
 
     r.raise_for_status()
     return r.json()
-

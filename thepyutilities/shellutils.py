@@ -10,7 +10,7 @@ __program__ = 'shellutils'
 __description__ = '''Library for common utilities.'''
 # Version:
 __version__ = '0.0.2'
-#    Date: 
+#    Date:
 __date__ = '2010-10-29'
 # License: This script doesn't require any license since it's not intended to be redistributed.
 #          In such case, unless stated otherwise, the purpose of the author is to follow GPLv3.
@@ -29,26 +29,26 @@ import logging
 import sys
 import re
 import shutil
-import stringutils
+from . import stringutils
 import hashlib
 import pexpect
 
 
-def exists(path):    
+def exists(path):
     '''This function returns if a object exists in current working directory
     '''
 
     return os.path.exists(path)
 
 
-def fileExists(path):    
+def fileExists(path):
     '''This function returns if a file exists in current working directory
     '''
 
     return os.path.exists(path) and os.path.isfile(path)
 
 
-def dirExists(path):    
+def dirExists(path):
     '''This function returns if a dir exists in current working directory
     '''
     return os.path.exists(path) and os.path.isdir(path)
@@ -61,25 +61,25 @@ def rm(pathList, recurse=False):
     try:
         if type(pathList).__name__ != 'list':
             pathList = [pathList]
-        
+
         for entity in pathList:
             if recurse:
                 if os.path.isdir(entity):
-                    shutil.rmtree(entity)            
+                    shutil.rmtree(entity)
 
                 else:
-                    os.remove(entity)            
-            
+                    os.remove(entity)
+
             else:
                 if fileExists(entity):
                     os.remove(entity)
-                    
+
                 else:
                     logging.error('rm: ' + "Is a directory")
                     return - 1
 
         return 0
-    
+
     except:
         logging.error('rm: ' + "Unexpected error:" + str(sys.exc_info()[0]))
         raise
@@ -158,7 +158,7 @@ def mkdir(path):
     '''
     try:
         os.makedirs(path)
-        
+
     except:
         logging.error('mkdir: ' + "Unexpected error:" + str(sys.exc_info()[0]))
         raise
@@ -177,18 +177,18 @@ def findNReplaceRegExp(file_name, regexp, replaceString, verbose=False, confirma
         _cregexp = None
 
         def __init__ (self, text, regexp):
-            self._text = text     
-            self._lastPosition = 0  
+            self._text = text
+            self._lastPosition = 0
             self._cregexp = re.compile(regexp, re.MULTILINE | re.DOTALL)
-    
+
         def reset (self, text, regexp):
             self._text = text
             self._lastPosition = 0
             self._cregexp = re.compile(regexp, re.MULTILINE | re.DOTALL)
-    
+
         def reset (self):
             self.reset('', '')
-    
+
         def findNext (self):
             '''Returns the position and length of the next ocurrence
             '''
@@ -201,14 +201,14 @@ def findNReplaceRegExp(file_name, regexp, replaceString, verbose=False, confirma
                 self._text = self._text[coincidence.end():]
             else:
                 result = None
- 
+
             return result
- 
+
         def shift (self, number):
             '''Shifts by a number of positions the actual indexf
             '''
             self._lastPosition = self._lastPosition + number
-       
+
         def thereAreItemsLeft (self):
             '''Returns if there are items left to occur
             '''
@@ -233,7 +233,7 @@ def findNReplaceRegExp(file_name, regexp, replaceString, verbose=False, confirma
         myNewFile = myFile [:position] + replaceString + myFile [position + length:]
 
         if verbose == True:
-            print "found at position " + str(position)
+            print("found at position {}".format(position))
             # calculate the segment of text in which the resolution will be done
             from_index = stringutils.extendedRFind(myFile, "\n", 0, position, surroundingLines + 1)
             to_index_old = stringutils.extendedFind(myFile, "\n", position + length, len(myFile), surroundingLines + 1)
@@ -243,13 +243,13 @@ def findNReplaceRegExp(file_name, regexp, replaceString, verbose=False, confirma
                 from_index = 0
             if to_index_old == len(myFile) or myFile[to_index_old] != "\n":
                 to_index_old = len(myFile) - 1
-            
+
             # print the old string and the new string
-            print '- ' 
-            print myFile[from_index:to_index_old]
-            print '+ ' 
-            print myNewFile[from_index:to_index_new]
-           
+            print('- ')
+            print(myFile[from_index:to_index_old])
+            print('+ ')
+            print(myNewFile[from_index:to_index_new])
+
             if confirmationNeeded:
                 # ask user if this should be done
                 question = raw_input('Accept changes? [Yes (Y), No (n), Abort (a)] ')
@@ -258,7 +258,7 @@ def findNReplaceRegExp(file_name, regexp, replaceString, verbose=False, confirma
                 question = str.lower(question)
                 if question == 'a':
                     isAborted = True
-                    print "Changes to file " + file_name + " aborted"
+                    print("Changes to file {} aborted".format(file_name))
                     break
                 elif question == 'n':
                     pass
@@ -269,11 +269,11 @@ def findNReplaceRegExp(file_name, regexp, replaceString, verbose=False, confirma
             else:
                 myFile = myNewFile
                 mySearchIterator.shift (len(replaceString) - length)
-                ocurrences = ocurrences + 1                
+                ocurrences = ocurrences + 1
         else:
             myFile = myNewFile
             mySearchIterator.shift (len(replaceString) - length)
-            ocurrences = ocurrences + 1        
+            ocurrences = ocurrences + 1
 
     # if some text was replaced, overwrite the original file
     if ocurrences > 0 and not isAborted:
@@ -281,7 +281,7 @@ def findNReplaceRegExp(file_name, regexp, replaceString, verbose=False, confirma
         file_out = open(file_name, 'w')
         file_out.write(myFile)
         file_out.close()
-        if verbose: print "File " + file_name + " written"
+        if verbose: print("File {} written".format(file_name))
 
     return ocurrences
 
@@ -299,10 +299,10 @@ def findNReplaceInFiles(file_name_list, oldString, replaceString, verbose=False,
        with the number of times replaced in each file
     '''
     output = []
-    if verbose == True: print '\nReplaced (verbose):\n'
+    if verbose == True: print('\nReplaced (verbose):\n')
     # loop on all files
     for file_name in file_name_list:
-        print 'Processing: ' + file_name
+        print('Processing: ' + file_name)
         output.append(findNReplace(file_name, oldString, replaceString, verbose, confirmationNeeded))
     return output
 
@@ -312,10 +312,10 @@ def findNReplaceRegExpInFiles(file_name_list, regexp, replaceString, verbose=Fal
        with the number of times replaced in each file
     '''
     output = []
-    if verbose == True: print '\nReplaced (verbose):\n'
+    if verbose == True: print('\nReplaced (verbose):\n')
     # loop on all files
     for file in file_name_list:
-        print 'Processing: ' + file
+        print('Processing: ' + file)
         output.append(findNReplaceRegExp(file, regexp, replaceString, verbose, confirmationNeeded))
     return output
 
@@ -337,19 +337,19 @@ def addLinuxPermanentEnvVar(key, value, index="Global"):
     elif index == "Local":
         file = os.environ['HOME'] + '/.profile'
     else:
-        return None 
+        return None
 
     findNReplaceOrAppend(file, '^' +str(key) + '=[^\n]+', str(key) + '=' + str(value))
 
 
-def run(command, timeout=0): 
+def run(command, timeout=0):
     ''' Run commands. The command is a array of strings WITHOUT SPACES
         NOTE: This proc is not adecuate to run commands like ffmpeg
         ie. status, stdout, stderr = shellutils.run(["ffmpeg", "-ss", start, "-t", end, "-i", input, "-s", res, "-b", "4000k", output]);
         ie. status, stdout, stderr = shellutils.run(command.split());
     '''
     proc = subprocess.Popen(command, bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
+
     if timeout != 0 :
         poll_seconds = .250
         deadline = time.time() + timeout
@@ -360,8 +360,8 @@ def run(command, timeout=0):
             if float(sys.version[:3]) >= 2.6:
                 proc.terminate()
 
-    stdout, stderr = proc.communicate()       
-    return proc.returncode, stdout, stderr 
+    stdout, stderr = proc.communicate()
+    return proc.returncode, stdout, stderr
 
 
 def runCLI(cmd):
@@ -372,17 +372,17 @@ def runCLI(cmd):
 
     return status, stdout, stderr
 
-    
+
 def runExpect(cmd, token = pexpect.EOF, live=False):
     '''This function takes hard handling cli commands and returns the output
        WARNING: Only Linux
        To pipe commands use: child = pexpect.spawn('/bin/bash -c "ls -l | grep LOG > log_list.txt"')
     '''
-        
+
     if type(cmd).__name__ == 'list' or type(cmd).__name__ == 'tuple':
         cmd = " ".join(map(str, cmd))
     child = pexpect.spawn (cmd,  timeout=None)
-    if live: 
+    if live:
         child.logfile = sys.stdout
     child.expect(token)
     child.close()
@@ -415,7 +415,7 @@ def getSystemName():
         return socket.gethostname()
 
 
-def cp(source, destination): 
+def cp(source, destination):
     '''This function takes a file or directory and copy it to a destination
     '''
     try:
@@ -430,9 +430,9 @@ def cp(source, destination):
             shutil.copytree(source, destination)
 
         else:
-            logging.error('cp: ' + "source is not file nor directory: " + source) 
+            logging.error('cp: ' + "source is not file nor directory: " + source)
             return - 1
-        
+
         logging.debug("cp: " + source + " -> " + destination)
         return 0
 
@@ -447,20 +447,20 @@ def hash(file):
     if os.path.isfile(file):
         md5 = hashlib.md5()
         f = open(file)
-    
+
         while True:
             data = f.read(128)
             if not data:
                 break
             md5.update(data)
-        
+
         return md5.digest()
 
     else:
         return 0
 
 
-def mv(sourceList, destination): 
+def mv(sourceList, destination):
     '''This function takes a list of files and directories and moves them to a destination
     '''
     def oneToOne (source, destination):
@@ -468,7 +468,7 @@ def mv(sourceList, destination):
         tempDestination = destination + '.tmp'
         cp(source, tempDestination)
         finalHash = hash(tempDestination)
-                    
+
         # Check that the copy is ok
         if initialHash != finalHash:
             logging.error('mv: ' + "Hash error for the file " + source + ". InitHash:" + initialHash + "  FinalHash:" + finalHash)
@@ -486,41 +486,41 @@ def mv(sourceList, destination):
         # Adapt the source
         if type(sourceList).__name__ != 'list':
             sourceList = [sourceList]
-            
+
         logging.debug("mv: " + str(sourceList) + " -> " + destination)
-        
+
         if not exists(destination):
             if len(sourceList) > 1: # From several to unknown name
-                logging.error('mv: ' + "cannot move several items to an unknown destination") 
+                logging.error('mv: ' + "cannot move several items to an unknown destination")
                 return - 1
 
             elif os.path.isfile(sourceList[0]) or os.path.isdir(sourceList[0]): # From one (whatever) to unknown name
                 return oneToOne(sourceList[0], destination)
 
             else:
-                logging.error('mv: ' + "source is not file nor directory: " + sourceList[0]) 
+                logging.error('mv: ' + "source is not file nor directory: " + sourceList[0])
                 return - 1
 
         elif os.path.isfile(destination):
             if len(sourceList) > 1: # From several items to file
-                logging.error('mv: ' + "cannot move several items to file") 
+                logging.error('mv: ' + "cannot move several items to file")
                 return - 1
 
             elif os.path.isfile(sourceList[0]): # From one file to file (overwrite)
                 return oneToOne(sourceList[0], destination)
-            
+
             elif os.path.isdir(sourceList[0]):  # From dir to file
-                logging.error('mv: ' + "cannot move a dir to a file: " + sourceList[0]) 
+                logging.error('mv: ' + "cannot move a dir to a file: " + sourceList[0])
                 return - 1
 
             else:
-                logging.error('mv: ' + "source is not file nor directory: " + sourceList[0]) 
+                logging.error('mv: ' + "source is not file nor directory: " + sourceList[0])
                 return - 1
- 
+
         elif os.path.isdir(destination):
             # For every source in the path
             for source in sourceList:
-    
+
                 sourceName = basename(source)
 
                 if os.path.isfile(source):
@@ -530,7 +530,7 @@ def mv(sourceList, destination):
                     tempDestination = theDestination + '.tmp'
                     cp(source, tempDestination)
                     finalHash = hash(tempDestination)
-                
+
                     # Check that the copy is ok
                     if initialHash != finalHash:
                         logging.error('mv: ' + "Hash error for the file " + source + ". InitHash:" + initialHash + "  FinalHash:" + finalHash)
@@ -543,9 +543,9 @@ def mv(sourceList, destination):
                         shutil.move(tempDestination, theDestination)
                         # Remove the source file
                         rm(source, recurse=True)
-                
+
                 elif os.path.isdir(source):
-                    theDestination = os.path.join(destination, sourceName) 
+                    theDestination = os.path.join(destination, sourceName)
                     mkdir(theDestination)
                     for entity in ls(source):
                         if mv(os.path.join(source, entity), theDestination) != 0:
@@ -554,9 +554,9 @@ def mv(sourceList, destination):
                     rm(source, recurse=True)
 
                 else:
-                    logging.error('mv: ' + "object is not file nor directory: " + source) 
+                    logging.error('mv: ' + "object is not file nor directory: " + source)
                     return - 1
-            
+
             return 0
 
         else:
@@ -566,12 +566,12 @@ def mv(sourceList, destination):
     except:
         logging.error('mv: ' + "Unexpected error:" + str(sys.exc_info()[0]) + " for input (" + str(sourceList) + ", " + destination + ")")
         raise
-    
-def pwd(): 
+
+def pwd():
     '''This function returns the current working directory
     '''
     return os.getcwd()
-    
+
 def walk (path=pwd()):
     '''This function returns a list of files and directories under the path passed as parameter (without full path)
        NOTE: It wont include . and .. but it shows all hidden files
@@ -584,18 +584,18 @@ def walk (path=pwd()):
         elif os.path.isdir(os.path.join(path, artifact)):
             dirs.append(artifact)
         else:
-            logging.error('walk: ' + "object is not file nor directory: " + os.path.join(path, artifact)) 
+            logging.error('walk: ' + "object is not file nor directory: " + os.path.join(path, artifact))
 
     # Do some sorting
-    if files != [] : 
+    if files != [] :
         files.sort()
-    if dirs != [] : 
+    if dirs != [] :
         dirs.sort()
-    
+
     return path, dirs, files
-    
-def fullPath(path): 
-    '''This function returns 
+
+def fullPath(path):
+    '''This function returns
     '''
     if type(path) != type('str'):
         return None
@@ -604,22 +604,22 @@ def fullPath(path):
             return path
         else:
             return os.path.realpath(os.path.join(pwd(), path))
-   
+
 def areFilesEqual (file1Path, file2Path):
     import filecmp
     return filecmp.cmp(file1Path, file2Path)
- 
-def ls(path=pwd(), fullPath=False, recurse=False, type="all"): 
+
+def ls(path=pwd(), fullPath=False, recurse=False, type="all"):
     '''This function returns a list of files and directories under the path passed as parameter (without full path)
        NOTE: It wont include . and .. but it shows all hidden files
     '''
-   
+
 #TODO: Meter ordenacion por criterios y poder darle la vuelta
 #def sorted_ls_time(path, regexp):
 #    mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
 #    names = list(sorted(os.listdir(path), key=mtime))
 #    return filter(lambda x:regexp in x,names)
- 
+
     def setFullPath (path, files):
         '''Aux function to fullpath a set of files
         '''
@@ -633,28 +633,28 @@ def ls(path=pwd(), fullPath=False, recurse=False, type="all"):
 
     if exists(path) and os.path.isdir(path) and type in ["all", "files", "dirs"]:
         logging.debug('ls: ' + "Listing directory " + path)
-       
+
         path, dirs, files = walk (path)
-  
+
         if type == "files":
             result = files
         elif type == "dirs":
             result = dirs
         else:
             result = dirs + files
-            
+
         if fullPath:
             result = setFullPath(path, result)
-                   
-        if recurse:            
+
+        if recurse:
             for dir in dirs:
                 result += ls(path=os.path.join(path, dir), fullPath=fullPath, recurse=True, type=type)
- 
+
         return result
 
-    else: 
+    else:
         return None
-    
+
 def isDirEmpty(path, emptyOfFilesOnly=False):
     '''This function returns true if a directory is empty, accepts an argument that querys
        if its empty or empty of files (only directories inside)
@@ -662,7 +662,7 @@ def isDirEmpty(path, emptyOfFilesOnly=False):
     if (emptyOfFilesOnly == True):
         path, dirs, files = walk (path)
         return ((files == []) and (dirs != []))
-    
+
     else:
         return (os.listdir(path) == [])
 
@@ -671,7 +671,7 @@ def getSystemVariable(name, defaultValue=None):
     '''This function returns the system variable or defaultValue if not found
     '''
     envVar = os.getenv(name)
-    
+
     if envVar is None:
         logging.error('getSystemVariable: ' + 'Envvar not fetched')
         envVar = defaultValue
@@ -714,10 +714,10 @@ def dirname(name):
 def isDriveConnected(name):
     '''This function returns if a certain drive is connected to the system
     '''
-    path = getSystemVariable(name) 
+    path = getSystemVariable(name)
     if path is None:
         return False
-    
+
     else:
         return (ls() != None and ls() != [])
 
@@ -734,20 +734,20 @@ def du(path):
             folder_size += os.path.getsize(path)
         except:
             logging.error('du: ' + "Unexpected error:" + str(sys.exc_info()[0]))
-        
+
     return folder_size
- 
+
 
 def cd(path):
     '''This function changes the current wd
     '''
     path = os.path.abspath(path)
-    
+
     if dirExists(path) is False:
         logging.error('cd: ' + 'cd failed because ' + path + ' does not exists')
         return False
 
-    else:  
+    else:
         os.chdir(path)
         if os.path.realpath(path) == pwd():
             logging.debug('cd: ' + 'Succesfully changed to ' + path)
@@ -761,17 +761,17 @@ def grep(match, object):
     '''This function returns the matched line of the file
     '''
     result = []
-    
+
     if fileExists(object):
         object = open(object)
-        
+
     for line in object.splitlines():
         if match in line:
             result.append(line)
-        
+
     if result == []:
         return None
-    
+
     else:
         return result
 
@@ -779,17 +779,17 @@ def egrep(match, object):
     '''This function returns the matched line of the file with re
     '''
     result = []
-    
+
     if fileExists(object):
         object = open(object)
-        
+
     for line in object.splitlines():
         if re.match(match, line) != None:
             result.append(line)
-        
+
     if result == []:
         return None
-    
+
     else:
         return result
 
@@ -797,23 +797,23 @@ def find(rootPath):
     '''This function returns the find output
     '''
     result = []
-    
+
     path, dirs, files = walk (rootPath)
-  
+
     for file in files:
         result.append(os.path.join(rootPath, file))
-        
+
     for dir in dirs:
         result.append(os.path.join(rootPath, dir))
         result += find(os.path.join(rootPath, dir))
-        
+
     if result == []:
         return None
     else:
         return result
 
 
-def checkPidRunning(pid):        
+def checkPidRunning(pid):
     '''Check For the existence of a unix pid.
     '''
     try:
@@ -822,5 +822,3 @@ def checkPidRunning(pid):
         return False
     else:
         return True
-
-
